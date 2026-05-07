@@ -1,0 +1,10 @@
+C:\Users\jheo03\Documents\RFID_Final\obj\Debug\RFID_Final.csproj.AssemblyReference.cache
+C:\Users\jheo03\Documents\RFID_Final\obj\Debug\RFID_Final.csproj.CoreCompileInputs.cache
+C:\Users\jheo03\Documents\RFID_Final\bin\Debug\RFID_Final.pdb
+C:\Users\jheo03\Documents\RFID_Final\bin\Debug\MercuryAPI.dll
+C:\Users\jheo03\Documents\RFID_Final\bin\Debug\LLRP.dll
+C:\Users\jheo03\Documents\RFID_Final\obj\Debug\RFID_Final.csproj.Up2Date
+C:\Users\jheo03\Documents\RFID_Final\obj\Debug\RFID_Final.pdb
+C:\Users\jheo03\Documents\RFID_Final\bin\Debug\RFID_Final.exe.config
+C:\Users\jheo03\Documents\RFID_Final\bin\Debug\RFID_Final.exe
+C:\Users\jheo03\Documents\RFID_Final\obj\Debug\RFID_Final.exe
