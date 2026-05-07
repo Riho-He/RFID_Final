@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 
 internal class Program
 {
-    public struct TagData
+    public class TagData
     {
         public TagData(string name, DateTime timestamp) {
             this.name = name;
@@ -45,8 +45,9 @@ internal class Program
          *     Reading
          *****************/
 
-        
 
+        int check_every_seconds = 5; // Check if there are missing tags once every this many seconds
+        DateTime next_check = DateTime.Now;
         Dictionary<string, TagData> trackedtags = new Dictionary<string, TagData>();
         HashSet<string> seentags = new HashSet<string>();
         Queue<string> newtags = new Queue<string>();
@@ -58,13 +59,13 @@ internal class Program
             seentags.Add(epc);
             if (trackedtags.ContainsKey(epc)) {
                 //Console.WriteLine("tag " + trackedtags[epc].name + " has associated timestamp: " + trackedtags[epc].timestamp.ToString());
-                trackedtags[epc].setTimestamp(DateTime.Now);
+                trackedtags[epc].timestamp = DateTime.Now;
             } else {
                 newtags.Enqueue(epc);
             }
         };
 
-        bool writeMenu = true;
+        bool writeMenu = false;
 
 
         r.StartReading();
@@ -100,7 +101,8 @@ internal class Program
                         {
                             status = "Found";
                         }
-                        Console.WriteLine(entrycount + ". Name: " + entry.Value.name + ":  ID: " + entry.Key + "  STATUS: " + status + " (last read " + entry.Value.timestamp + "reads ago)");
+                        TimeSpan timeDifference = DateTime.Now.Subtract(entry.Value.timestamp);
+                        Console.WriteLine(entrycount + ". Name: " + entry.Value.name + ":  ID: " + entry.Key + "  STATUS: " + status + " -- last read " + entry.Value.timestamp + " (" + (timeDifference.Seconds) +"seconds ago)");
                         entrycount++;
                     }
                     Console.WriteLine();
@@ -176,7 +178,40 @@ internal class Program
                 default:
                     Console.Write("\nCommand not recognized. Try again.\n" +
                                   " > ");
+                    command = "";
                     break;
+            }
+
+            // Check every 5 seconds if there's a tag that's missing for more than 5 seconds
+            Dictionary<string, TagData> missingTags = new Dictionary<string, TagData>();
+            foreach (KeyValuePair<string, TagData> entry in trackedtags)
+            {
+                if (DateTime.Compare(entry.Value.timestamp, DateTime.Now.AddSeconds(-5)) < 0)
+                {
+                    missingTags.Add(entry.Key, entry.Value);
+                }
+            }
+            if (DateTime.Compare(DateTime.Now, next_check) > 0)
+            {
+                next_check = DateTime.Now.AddSeconds(5);
+            
+                Console.WriteLine("\n\n============================================================\n" +
+                                      "                           Alerts                           \n" +
+                                      "============================================================");
+
+                if (missingTags.Count > 0) {
+                    Console.WriteLine("The following tags have not been seen for at least 5 seconds:");
+                    foreach (KeyValuePair<string, TagData> entry in missingTags)
+                    {
+                        TimeSpan timeDifference = DateTime.Now.Subtract(entry.Value.timestamp);
+                        Console.WriteLine(" - Name: " + entry.Value.name + ":  ID: " + entry.Key + " -- last read " + entry.Value.timestamp + " (" + (timeDifference.Seconds) + "seconds ago)");
+                    }
+                } else
+                {
+                    Console.WriteLine(" No alerts");
+                }
+                Console.WriteLine("============================================================\n\n");
+                writeMenu = true;
             }
 
             if (Console.KeyAvailable)
