@@ -54,14 +54,13 @@ internal class Program
 
         r.TagRead += (sender, e) =>
         {
-            newtags.Clear();
             string epc = e.TagReadData.EpcString;
-            seentags.Add(epc);
             if (trackedtags.ContainsKey(epc)) {
                 //Console.WriteLine("tag " + trackedtags[epc].name + " has associated timestamp: " + trackedtags[epc].timestamp.ToString());
                 trackedtags[epc].timestamp = DateTime.Now;
-            } else {
+            } else if (!seentags.Contains(epc)) {
                 newtags.Enqueue(epc);
+                seentags.Add(epc);
             }
         };
 
@@ -173,6 +172,7 @@ internal class Program
                     break;
 
                 case "":
+                case "\n":
                     break;
 
                 default:
@@ -188,13 +188,14 @@ internal class Program
             {
                 if (DateTime.Compare(entry.Value.timestamp, DateTime.Now.AddSeconds(-5)) < 0)
                 {
-                    missingTags.Add(entry.Key, entry.Value);
+                    missingTags[entry.Key] = entry.Value;
                 }
             }
             if (DateTime.Compare(DateTime.Now, next_check) > 0)
             {
                 next_check = DateTime.Now.AddSeconds(5);
-            
+                newtags.Clear();
+
                 Console.WriteLine("\n\n============================================================\n" +
                                       "                           Alerts                           \n" +
                                       "============================================================");
